@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Control</title>
+</head>
+<body>
+    <h2>LED Control Panel</h2>
+    
+    <div id="loginDiv">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="loginBtn">Login</button>
+        <button id="logoutBtn">Logout</button>
+    </div>
+
+    <div id="controlDiv" style="display:none;">
+        <button id="ledOnBtn">Turn ON</button>
+        <button id="ledOffBtn">Turn OFF</button>
+    </div>
+
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAqbiHpHrNaBVRUrNRiieddgdc2YAQ78M4",
+            authDomain: "ledn-661f9.firebaseapp.com",
+            databaseURL: "https://ledn-661f9-default-rtdb.firebaseio.com",
+            projectId: "ledn-661f9",
+            storageBucket: "ledn-661f9.firebasestorage.app",
+            messagingSenderId: "952541936571",
+            appId: "1:952541936571:web:5c6db09a9e85930eff629e",
+            measurementId: "G-289ER1QK5V"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // Function to handle login
+        function login() {
+            let email = document.getElementById("email").value;
+            let password = document.getElementById("password").value;
+
+            signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                alert("Login Successful");
+                document.getElementById("loginDiv").style.display = "none";
+                document.getElementById("controlDiv").style.display = "block";
+            })
+            .catch(error => alert(error.message));
+        }
+
+        // Function to handle logout
+        function logout() {
+            signOut(auth).then(() => {
+                alert("Logged out");
+                document.getElementById("loginDiv").style.display = "block";
+                document.getElementById("controlDiv").style.display = "none";
+            });
+        }
+
+        // Function to control LED state
+        function setLED(state) {
+            set(ref(database, "/led"), state)
+            .then(() => alert("LED turned " + state))
+            .catch(error => alert(error.message));
+        }
+
+        // Attach functions to buttons
+        document.getElementById("loginBtn").addEventListener("click", login);
+        document.getElementById("logoutBtn").addEventListener("click", logout);
+        document.getElementById("ledOnBtn").addEventListener("click", () => setLED("ON"));
+        document.getElementById("ledOffBtn").addEventListener("click", () => setLED("OFF"));
+    </script>
+</body>
+</html>
